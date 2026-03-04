@@ -1,0 +1,7 @@
+{
+  "name": "industrial/training-backend",
+  "type": "project",
+  "require": {
+    "php": ">=8.0"
+  }
+}
