@@ -3,20 +3,27 @@
     <template #header>
       <div class="toolbar">
         <span>部门管理</span>
-        <el-button type="primary" @click="openCreate">新增部门</el-button>
+        <el-button v-if="auth.hasPermission('department.manage')" type="primary" @click="openCreate">新增部门</el-button>
       </div>
     </template>
 
     <el-empty v-if="!loading && !treeData.length" description="暂无部门数据" />
-    <el-tree v-else v-loading="loading" :data="treeData" node-key="dept_id" :props="treeProps" default-expand-all>
+    <el-tree
+      v-else
+      v-loading="loading"
+      :data="treeData"
+      node-key="dept_id"
+      default-expand-all
+      :props="treeProps"
+    >
       <template #default="{ data }">
         <span class="tree-node">
           <span>{{ data.dept_name }}</span>
           <span>
-            <el-button link type="primary" @click="openEdit(data)">编辑</el-button>
+            <el-button v-if="auth.hasPermission('department.manage')" link type="primary" @click="openEdit(data)">编辑</el-button>
             <el-popconfirm title="确认删除该部门？" @confirm="onDelete(data)">
               <template #reference>
-                <el-button link type="danger">删除</el-button>
+                <el-button v-if="auth.hasPermission('department.manage')" link type="danger">删除</el-button>
               </template>
             </el-popconfirm>
           </span>
@@ -44,24 +51,23 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { createDepartmentApi, deleteDepartmentApi, getDepartmentListApi, updateDepartmentApi } from '../../api/department'
+import { createDepartmentApi, deleteDepartmentApi, getDepartmentTreeApi, updateDepartmentApi } from '../../api/department'
+import { useAuthStore } from '../../store/auth'
 
+const auth = useAuthStore()
 const loading = ref(false)
-const list = ref([])
+const treeData = ref([])
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const form = ref({ dept_id: null, dept_name: '', parent_id: 0 })
 const treeProps = { label: 'dept_name', children: 'children' }
-
-const buildTree = (rows, parentId = 0) => rows.filter((x) => Number(x.parent_id) === parentId).map((x) => ({ ...x, children: buildTree(rows, Number(x.dept_id)) }))
-const treeData = computed(() => buildTree(list.value, 0))
 const treeSelectData = computed(() => [{ dept_id: 0, dept_name: '顶级部门', children: treeData.value }])
 
 const loadList = async () => {
   loading.value = true
   try {
-    const res = await getDepartmentListApi()
-    list.value = res.data || []
+    const res = await getDepartmentTreeApi()
+    treeData.value = res.data || []
   } finally { loading.value = false }
 }
 

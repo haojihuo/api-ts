@@ -23,6 +23,8 @@ class AuthController extends BaseController
             'user_id' => (int)$user['user_id'],
             'company_id' => (int)$user['company_id'],
             'role_id' => (int)$user['role_id'],
+            'dept_id' => (int)$user['dept_id'],
+            'role_level' => (int)$user['role_level'],
             'username' => $user['username'],
         ]);
 

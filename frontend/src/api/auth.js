@@ -10,3 +10,8 @@ export const profileApi = () => request({
   url: '/api/profile',
   method: 'get'
 })
+
+export const myPermissionsApi = () => request({
+  url: '/api/permissions/my',
+  method: 'get'
+})

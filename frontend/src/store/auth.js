@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
-import { loginApi, profileApi } from '../api/auth'
+import { loginApi, myPermissionsApi, profileApi } from '../api/auth'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}')
+    userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}'),
+    permissions: JSON.parse(localStorage.getItem('permissions') || '[]')
   }),
   getters: {
-    isLogin: (state) => !!state.token
+    isLogin: (state) => !!state.token,
+    hasPermission: (state) => (perm) => state.permissions.includes(perm)
   },
   actions: {
     async login(form) {
@@ -15,7 +17,7 @@ export const useAuthStore = defineStore('auth', {
       if (res.code !== 0) throw new Error(res.msg || '登录失败')
       this.token = res.data.token
       localStorage.setItem('token', this.token)
-      await this.fetchProfile()
+      await Promise.all([this.fetchProfile(), this.fetchPermissions()])
     },
     async fetchProfile() {
       const res = await profileApi()
@@ -24,11 +26,18 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
       }
     },
+    async fetchPermissions() {
+      const res = await myPermissionsApi()
+      this.permissions = res.code === 0 ? (res.data || []) : []
+      localStorage.setItem('permissions', JSON.stringify(this.permissions))
+    },
     logout() {
       this.token = ''
       this.userInfo = {}
+      this.permissions = []
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
+      localStorage.removeItem('permissions')
     }
   }
 })

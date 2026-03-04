@@ -26,9 +26,9 @@ class InstallController extends BaseController
         }
 
         $pwd = password_hash('Admin@123456', PASSWORD_BCRYPT);
-        Db::pdo()->exec("INSERT IGNORE INTO roles(role_id, role_name, company_id) VALUES(1, '超级管理员', 10001)");
-        Db::pdo()->exec("INSERT IGNORE INTO users(user_id, username, password, company_id, role_id) VALUES(1, 'admin', '{$pwd}', 10001, 1)");
+        Db::pdo()->exec("INSERT IGNORE INTO users(user_id, username, password, company_id, dept_id, role_id) VALUES(1, 'admin', '{$pwd}', 10001, 1, 1)");
         Db::pdo()->exec("INSERT IGNORE INTO role_permissions(role_id, permission_id) SELECT 1, permission_id FROM permissions");
+        Db::pdo()->exec("INSERT IGNORE INTO user_permissions(user_id, permission_key) SELECT 1, permission_key FROM permissions");
 
         @mkdir(dirname($lockFile), 0777, true);
         file_put_contents($lockFile, date('c'));

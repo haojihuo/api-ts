@@ -11,7 +11,7 @@ class EmployeeController extends BaseController
 {
     public function index(): void
     {
-        Response::json(0, 'success', (new EmployeeService())->list($this->companyId()));
+        Response::json(0, 'success', (new EmployeeService())->list($this->companyId(), Request::user() ?? []));
     }
 
     public function store(): void

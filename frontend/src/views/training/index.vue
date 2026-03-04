@@ -1,7 +1,7 @@
 <template>
   <el-card>
     <template #header>
-      <div class="toolbar"><span>培训记录</span><el-button type="primary" @click="openCreate">新增记录</el-button></div>
+      <div class="toolbar"><span>培训记录</span><el-button v-if="auth.hasPermission('training.manage')" type="primary" @click="openCreate">新增记录</el-button></div>
     </template>
 
     <el-form inline :model="filters" class="filter-bar">
@@ -31,8 +31,8 @@
       <el-table-column prop="completed_at" label="完成时间" width="180" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
-          <el-button link type="danger" @click="onDelete(row)">删除</el-button>
+          <el-button v-if="auth.hasPermission('training.manage')" link type="primary" @click="openEdit(row)">编辑</el-button>
+          <el-button v-if="auth.hasPermission('training.manage')" link type="danger" @click="onDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -58,10 +58,12 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '../../store/auth'
 import { getCourseListApi } from '../../api/course'
 import { getEmployeeListApi } from '../../api/employee'
 import { createTrainingApi, deleteTrainingApi, getTrainingListApi, updateTrainingApi } from '../../api/training'
 
+const auth = useAuthStore()
 const loading = ref(false)
 const list = ref([])
 const employees = ref([])

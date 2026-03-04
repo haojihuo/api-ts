@@ -5,6 +5,11 @@ export const getDepartmentListApi = () => request({
   method: 'get'
 })
 
+export const getDepartmentTreeApi = () => request({
+  url: '/api/departments/tree',
+  method: 'get'
+})
+
 export const createDepartmentApi = (data) => request({
   url: '/api/departments',
   method: 'post',

@@ -7,6 +7,7 @@ use app\controller\CourseController;
 use app\controller\DepartmentController;
 use app\controller\EmployeeController;
 use app\controller\InstallController;
+use app\controller\PermissionController;
 use app\controller\TrainingController;
 use app\middleware\AuthMiddleware;
 use app\middleware\perm\CourseManageMiddleware;
@@ -19,8 +20,10 @@ $router = new Router();
 $router->add('GET', '/install', [InstallController::class, 'run']);
 $router->add('POST', '/api/login', [AuthController::class, 'login']);
 $router->add('GET', '/api/profile', [AuthController::class, 'profile'], [AuthMiddleware::class]);
+$router->add('GET', '/api/permissions/my', [PermissionController::class, 'mine'], [AuthMiddleware::class]);
 
 $router->add('GET', '/api/departments', [DepartmentController::class, 'index'], [AuthMiddleware::class, DepartmentManageMiddleware::class]);
+$router->add('GET', '/api/departments/tree', [DepartmentController::class, 'tree'], [AuthMiddleware::class, DepartmentManageMiddleware::class]);
 $router->add('POST', '/api/departments', [DepartmentController::class, 'store'], [AuthMiddleware::class, DepartmentManageMiddleware::class]);
 
 $router->add('GET', '/api/employees', [EmployeeController::class, 'index'], [AuthMiddleware::class, EmployeeManageMiddleware::class]);

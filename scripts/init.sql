@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS roles (
   role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
   role_name VARCHAR(64) NOT NULL,
   company_id BIGINT NOT NULL,
+  role_level INT NOT NULL DEFAULT 10,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_role_company (company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(64) NOT NULL,
   password VARCHAR(255) NOT NULL,
   company_id BIGINT NOT NULL,
+  dept_id BIGINT NOT NULL DEFAULT 0,
   role_id BIGINT NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -38,11 +40,21 @@ CREATE TABLE IF NOT EXISTS users (
   KEY idx_user_company (company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS user_permissions (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  permission_key VARCHAR(128) NOT NULL,
+  UNIQUE KEY uk_user_perm (user_id, permission_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS departments (
   dept_id BIGINT AUTO_INCREMENT PRIMARY KEY,
   dept_name VARCHAR(100) NOT NULL,
   company_id BIGINT NOT NULL,
   parent_id BIGINT NOT NULL DEFAULT 0,
+  path VARCHAR(255) NULL,
+  level INT NOT NULL DEFAULT 1,
+  sort INT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_dept_company (company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -112,6 +124,12 @@ CREATE TABLE IF NOT EXISTS logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT IGNORE INTO companies(company_id, company_name) VALUES (10001, '默认公司');
+INSERT IGNORE INTO departments(dept_id, dept_name, company_id, parent_id, path, level, sort) VALUES (1, '公司', 10001, 0, '1', 1, 0);
+INSERT IGNORE INTO roles(role_id, role_name, company_id, role_level) VALUES
+(1, '超级管理员', 10001, 1),
+(2, '公司管理员', 10001, 2),
+(3, '部门管理员', 10001, 3),
+(10, '普通员工', 10001, 10);
 INSERT IGNORE INTO permissions(permission_key, permission_name, scope) VALUES
 ('user.view','用户查看','api'),
 ('user.manage','用户管理','api'),
